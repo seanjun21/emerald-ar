@@ -3,7 +3,15 @@ var root = 'https://jsonplaceholder.typicode.com';
 var usersHashMap = [];
 
 $(function () {
+    // Loading tables
     loadUsers();
+
+    // Proceed to profile-page
+    $('.displays').on('click', '#username', function (event) {
+        event.preventDefault();
+        var searchTerm = $(this).text();
+        getProfile(searchTerm);
+    });
 });
 
 function loadUsers() {
@@ -14,8 +22,8 @@ function loadUsers() {
                     userId: value.id,
                     username: value.username,
                     name: value.name,
-                    inCompToDos: 0,
-                    compToDos: 0
+                    incomplete: 0,
+                    complete: 0
                 });
             })
         }),
@@ -23,9 +31,9 @@ function loadUsers() {
             $.each(todos, function (key, value) {
                 $.each(usersHashMap, function (hashKey, hashValue) {
                     if (hashValue.userId === value.userId && value.completed === true) {
-                        hashValue.compToDos++;
+                        hashValue.complete++;
                     } else if (hashValue.userId === value.userId && value.completed === false) {
-                        hashValue.inCompToDos++;
+                        hashValue.incomplete++;
                     }
                 })
             })
@@ -33,34 +41,70 @@ function loadUsers() {
         })
     ).then(function () {
         $('.displays').html('<table id="display"></table>');
-        $('.templates #category').clone().appendTo('#display');
+        $('.templates #users-category').clone().appendTo('#display');
 
 
         console.log(usersHashMap);
 
 
         $.each(usersHashMap, function (key, value) {
-            var userShown = showUser(value.username, value.name, value.inCompToDos, value.compToDos);
+            var userShown = showUser(value.username, value.name, value.incomplete, value.complete);
             $('.displays #display').append(userShown);
         })
     });
 }
 
-function showUser(userID, name, inCompToDos, compToDos) {
-    // Clone template
-    var copy = $('.templates #value').clone();
+function getProfile(username) {
+    var selectedUser = _.filter(usersHashMap, _.matches({'username': username}));
 
-    // Set userID
-    copy.find('.user-id').text(userID);
+    $.when(
+        $.get(root + '/users/' + selectedUser[0].userId, function(data) {
+            var profileShown = showProfile(data.name, data.username, data.email, data.address, data.phone, data.website, data.company);
+            $('.displays').html(profileShown);
+        }),
+        $.get(root + '/todos?userId=' + selectedUser[0].userId, function(data) {
+            $('.displays').append('<table id="todos-list"></table>');
+            $('.templates #todos-category').clone().appendTo('#todos-list');
 
-    // Set name
+            $.each(data, function (key, value) {
+                var profileShown = showToDos(key, value.title, value.completed);
+                $('.displays #todos-list').append(profileShown);
+            });
+        })
+    );
+}
+
+function showUser(username, name, incomplete, complete) {
+    var copy = $('.templates #users-value').clone();
+
+    copy.find('#username').html('<a href="" target="_blank">' + username + '</a>');
+    copy.find('#name').text(name);
+    copy.find('#incomplete').text(incomplete);
+    copy.find('#complete').text(complete);
+
+    return copy;
+}
+
+function showProfile(name, username, email, address, phone, website, company) {
+    var copy = $('.templates #user-prop').clone();
+
     copy.find('.name').text(name);
+    copy.find('.username').text(username);
+    copy.find('.email').text(email);
+    copy.find('.address').html('<div>' + address.street + ' ' + address.suite + '</div><div>' + address.city + ' ' + address.zipcode + '</div>');
+    copy.find('.phone').text(phone);
+    copy.find('.website').text(website);
+    copy.find('.company').html('<div>' + company.name + '</div><div>' + '"' + company.bs + '"' + '</div><div>' + '"' + company.catchPhrase + '"' + '</div>');
 
-    // Set # of InComplete ToDos
-    copy.find('.incomp-todos').text(inCompToDos);
+    return copy;
+}
 
-    // Set # of Complete ToDos
-    copy.find('.comp-todos').text(compToDos);
+function showToDos(userId, title, completed) {
+    var copy = $('.templates #todos-value').clone();
+
+    copy.find('.todo-id').text(userId + 1);
+    copy.find('.title').text(title);
+    copy.find('.completed').text(completed);
 
     return copy;
 }

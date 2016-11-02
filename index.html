@@ -11,28 +11,74 @@
 </head>
 
 <body>
-    <section class="displays"></section>
-    <section class="templates hidden">
-        <table id="template">
-            <thead id="category">
-            <tr>
-                <th data-field="user-id">User ID</th>
-                <th data-field="name">Name</th>
-                <th data-field="incomp-todos"># InComplete ToDos</th>
-                <th data-field="comp-todos"># Complete ToDos</th>
-            </tr>
-            </thead>
+<section class="displays"></section>
+<section class="templates hidden">
+    <table id="users">
+        <thead id="users-category">
+        <tr>
+            <th data-field="username">User ID</th>
+            <th data-field="name">Name</th>
+            <th data-field="incomplete"># InComplete ToDos</th>
+            <th data-field="complete"># Complete ToDos</th>
+        </tr>
+        </thead>
 
-            <tbody id="value">
-            <tr>
-                <td class="user-id"></td>
-                <td class="name"></td>
-                <td class="incomp-todos"></td>
-                <td class="comp-todos"></td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
+        <tbody id="users-value">
+        <tr>
+            <td id="username"></td>
+            <td id="name"></td>
+            <td id="incomplete"></td>
+            <td id="complete"></td>
+        </tr>
+        </tbody>
+    </table>
+    <table id="user-prop">
+        <tr>
+            <th>Name</th>
+            <td class="name"></td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td class="username"></td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td class="email"></td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td class="address"></td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td class="phone"></td>
+        </tr>
+        <tr>
+            <th>Website</th>
+            <td class="website"></td>
+        </tr>
+        <tr>
+            <th>Company</th>
+            <td class="company"></td>
+        </tr>
+    </table>
+    <table id="todos-list">
+        <thead id="todos-category">
+        <tr>
+            <th data-field="todo-id">ToDo No.</th>
+            <th data-field="title">Title</th>
+            <th data-field="completed">Completed</th>
+        </tr>
+        </thead>
+        <tbody id="todos-value">
+        <tr>
+            <td class="todo-id"></td>
+            <td class="title"></td>
+            <td class="completed"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
 <!--Import jQuery before materialize.js-->
 <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
