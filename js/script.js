@@ -1,5 +1,4 @@
 var root = 'https://jsonplaceholder.typicode.com';
-
 var usersHashMap = [];
 
 $(function () {
@@ -7,38 +6,58 @@ $(function () {
     loadUsers();
 
     // Proceed to profile-page
-    $('.displays').on('click', '#username', function (event) {
+    $('.displays').on('click', '#username a', function (event) {
         event.preventDefault();
         var searchTerm = $(this).text();
         getProfile(searchTerm);
+        $('.pagination').hide();
+        $('.display-panel .home-button').show();
+    });
+
+    // Proceed to home-page
+    $('.display-panel .home-button').on('click', function (event) {
+        usersHashMap = [];
+        event.preventDefault();
+        loadUsers();
+        $('.pagination').show();
     });
 });
 
+
 function loadUsers() {
+    $('.display-panel .home-button').hide();
+    var usersData;
+    var todosData;
+
     $.when(
         $.get(root + '/users', function (users) {
-            $.each(users, function (key, value) {
-                usersHashMap.push({
-                    userId: value.id,
-                    username: value.username,
-                    name: value.name,
-                    incomplete: 0,
-                    complete: 0
-                });
-            })
+            usersData = users;
         }),
         $.get(root + '/todos', function (todos) {
-            $.each(todos, function (key, value) {
-                $.each(usersHashMap, function (hashKey, hashValue) {
-                    if (hashValue.userId === value.userId && value.completed === true) {
-                        hashValue.complete++;
-                    } else if (hashValue.userId === value.userId && value.completed === false) {
-                        hashValue.incomplete++;
-                    }
-                })
-            })
+            todosData = todos;
         })
     ).then(function () {
+        // Build hashmap for users
+        $.each(usersData, function (key, value) {
+            usersHashMap.push({
+                userId: value.id,
+                username: value.username,
+                name: value.name,
+                incomplete: 0,
+                complete: 0
+            });
+        });
+        $.each(todosData, function (key, value) {
+            $.each(usersHashMap, function (hashKey, hashValue) {
+                if (hashValue.userId === value.userId && value.completed === true) {
+                    hashValue.complete++;
+                } else if (hashValue.userId === value.userId && value.completed === false) {
+                    hashValue.incomplete++;
+                }
+            })
+        });
+
+        // Clone template and build display
         $('.displays').html('<table id="users-display"></table>');
         $('.templates #users-category').clone().appendTo('#users-display');
         $('.displays #users-display').append('<tbody id="users-value"></tbody>');
@@ -46,7 +65,10 @@ function loadUsers() {
         $.each(usersHashMap, function (key, value) {
             var userShown = showUser(value.username, value.name, value.incomplete, value.complete);
             $('.displays #users-value').append(userShown);
-        })
+        });
+
+        // Auto-populate pagination
+        pagination();
     });
 }
 
@@ -63,6 +85,8 @@ function getProfile(username) {
             todoData = todo;
         }).then(function () {
             var profileShown = showProfile(userData.name, userData.username, userData.email, userData.address, userData.phone, userData.website, userData.company);
+
+            // Clone template and build display
             $('.displays').html(profileShown).append('<table id="todos-list" class="tablesorter"></table>');
             $('.templates #todos-category').clone().appendTo('#todos-list');
             $('.displays #todos-list').append('<tbody id="todos-value"></tbody>');
@@ -77,7 +101,7 @@ function getProfile(username) {
 }
 
 function showUser(username, name, incomplete, complete) {
-    var copy = $('.templates #users-row').clone();
+    var copy = $('.templates .users-row').clone();
 
     copy.find('#username').html('<a href="" target="_blank">' + username + '</a>');
     copy.find('#name').text(name);
@@ -102,11 +126,42 @@ function showProfile(name, username, email, address, phone, website, company) {
 }
 
 function showToDos(userId, title, completed) {
-    var copy = $('.templates #todos-row').clone();
+    var copy = $('.templates .todos-row').clone();
 
     copy.find('.todo-id').text(userId + 1);
     copy.find('.title').text(title);
     copy.find('.completed').text(completed);
 
     return copy;
+}
+
+function pagination() {
+
+    var pagination = $('.pagination');
+    pagination.html('');
+
+    var rowsShown = 5;
+    var tableRows = $('#users-display').find('tbody tr');
+    var rowsTotal = tableRows.length;
+    var numPages = rowsTotal / rowsShown;
+
+    for (var i = 0; i < numPages; i++) {
+        var pageNum = i + 1;
+        if (pageNum === 1) {
+            pagination.append('<li class="active numbers"><a href="#!" rel="' + i + '">' + pageNum + '</a></li>');
+        } else {
+            pagination.append('<li class="waves-effect numbers"><a href="#!" rel="' + i + '">' + pageNum + '</a></li>');
+        }
+    }
+    tableRows.hide();
+    tableRows.slice(0, rowsShown).show();
+
+    pagination.on('click', '.numbers a', function () {
+        pagination.find('.numbers').removeClass("active").addClass('waves-effect');
+        $(this).parent().removeClass('waves-effect').addClass("active");
+        var currPage = $(this).attr('rel');
+        var startItem = currPage * rowsShown;
+        var endItem = startItem + rowsShown;
+        tableRows.css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({opacity: 1}, 300);
+    });
 }

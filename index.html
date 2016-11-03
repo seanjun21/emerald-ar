@@ -11,16 +11,11 @@
 </head>
 
 <body>
-<section class="displays"></section>
-<ul class="pagination">
-    <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
-    <li class="active"><a href="#!">1</a></li>
-    <li class="waves-effect"><a href="#!">2</a></li>
-    <li class="waves-effect"><a href="#!">3</a></li>
-    <li class="waves-effect"><a href="#!">4</a></li>
-    <li class="waves-effect"><a href="#!">5</a></li>
-    <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
-</ul>
+<div class="display-panel">
+    <a class="waves-effect waves-light btn home-button">Home</a>
+    <section class="displays"></section>
+    <ul class="pagination"></ul>
+</div>
 <section class="templates hidden">
     <table id="users">
         <thead id="users-category">
@@ -33,7 +28,7 @@
         </thead>
 
         <tbody>
-        <tr id="users-row">
+        <tr class="users-row">
             <td id="username"></td>
             <td id="name"></td>
             <td id="incomplete"></td>
@@ -80,7 +75,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr id="todos-row">
+        <tr class="todos-row">
             <td class="todo-id"></td>
             <td class="title"></td>
             <td class="completed"></td>
