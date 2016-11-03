@@ -58,7 +58,7 @@ function loadUsers() {
         });
 
         // Clone template and build display
-        $('.displays').html('<table id="users-display"></table>');
+        $('.displays').html('<table id="users-display" class="tablesorter highlight responsive-table"></table>');
         $('.templates #users-category').clone().appendTo('#users-display');
         $('.displays #users-display').append('<tbody id="users-value"></tbody>');
 
@@ -66,7 +66,7 @@ function loadUsers() {
             var userShown = showUser(value.username, value.name, value.incomplete, value.complete);
             $('.displays #users-value').append(userShown);
         });
-
+        $('#users-display').tablesorter();
         // Auto-populate pagination
         pagination();
     });
@@ -87,7 +87,7 @@ function getProfile(username) {
             var profileShown = showProfile(userData.name, userData.username, userData.email, userData.address, userData.phone, userData.website, userData.company);
 
             // Clone template and build display
-            $('.displays').html(profileShown).append('<table id="todos-list" class="tablesorter"></table>');
+            $('.displays').html(profileShown).append('<table id="todos-list" class="tablesorter highlight responsive-table"></table>');
             $('.templates #todos-category').clone().appendTo('#todos-list');
             $('.displays #todos-list').append('<tbody id="todos-value"></tbody>');
 
@@ -103,7 +103,7 @@ function getProfile(username) {
 function showUser(username, name, incomplete, complete) {
     var copy = $('.templates .users-row').clone();
 
-    copy.find('#username').html('<a href="" target="_blank">' + username + '</a>');
+    copy.find('#username').html('<a href="">' + username + '</a>');
     copy.find('#name').text(name);
     copy.find('#incomplete').text(incomplete);
     copy.find('#complete').text(complete);
