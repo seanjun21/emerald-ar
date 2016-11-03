@@ -37,45 +37,47 @@ function loadUsers() {
                     }
                 })
             })
-
         })
     ).then(function () {
-        $('.displays').html('<table id="display"></table>');
-        $('.templates #users-category').clone().appendTo('#display');
-
-
-        console.log(usersHashMap);
-
+        $('.displays').html('<table id="users-display"></table>');
+        $('.templates #users-category').clone().appendTo('#users-display');
+        $('.displays #users-display').append('<tbody id="users-value"></tbody>');
 
         $.each(usersHashMap, function (key, value) {
             var userShown = showUser(value.username, value.name, value.incomplete, value.complete);
-            $('.displays #display').append(userShown);
+            $('.displays #users-value').append(userShown);
         })
     });
 }
 
 function getProfile(username) {
     var selectedUser = _.filter(usersHashMap, _.matches({'username': username}));
+    var userData;
+    var todoData;
 
     $.when(
-        $.get(root + '/users/' + selectedUser[0].userId, function(data) {
-            var profileShown = showProfile(data.name, data.username, data.email, data.address, data.phone, data.website, data.company);
-            $('.displays').html(profileShown);
+        $.get(root + '/users/' + selectedUser[0].userId, function (user) {
+            userData = user;
         }),
-        $.get(root + '/todos?userId=' + selectedUser[0].userId, function(data) {
-            $('.displays').append('<table id="todos-list"></table>');
+        $.get(root + '/todos?userId=' + selectedUser[0].userId, function (todo) {
+            todoData = todo;
+        }).then(function () {
+            var profileShown = showProfile(userData.name, userData.username, userData.email, userData.address, userData.phone, userData.website, userData.company);
+            $('.displays').html(profileShown).append('<table id="todos-list" class="tablesorter"></table>');
             $('.templates #todos-category').clone().appendTo('#todos-list');
+            $('.displays #todos-list').append('<tbody id="todos-value"></tbody>');
 
-            $.each(data, function (key, value) {
+            $.each(todoData, function (key, value) {
                 var profileShown = showToDos(key, value.title, value.completed);
-                $('.displays #todos-list').append(profileShown);
+                $('.displays #todos-value').append(profileShown);
             });
+            $('#todos-list').tablesorter();
         })
     );
 }
 
 function showUser(username, name, incomplete, complete) {
-    var copy = $('.templates #users-value').clone();
+    var copy = $('.templates #users-row').clone();
 
     copy.find('#username').html('<a href="" target="_blank">' + username + '</a>');
     copy.find('#name').text(name);
@@ -100,7 +102,7 @@ function showProfile(name, username, email, address, phone, website, company) {
 }
 
 function showToDos(userId, title, completed) {
-    var copy = $('.templates #todos-value').clone();
+    var copy = $('.templates #todos-row').clone();
 
     copy.find('.todo-id').text(userId + 1);
     copy.find('.title').text(title);
